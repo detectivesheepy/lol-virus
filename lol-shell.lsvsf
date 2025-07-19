@@ -1,0 +1,27 @@
+# Check for admin rights
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Please run this script as Administrator." -ForegroundColor Red
+    exit
+}
+
+# Get the currently logged-in user
+$currentUsername = $env:USERNAME
+
+# Prevent changing critical system/admin accounts
+if ($currentUsername -eq "Administrator" -or $currentUsername -eq "SYSTEM" -or $currentUsername -eq "lol") {
+    Write-Host "This script cannot be run on the Administrator/SYSTEM/lol accounts." -ForegroundColor Yellow
+    exit
+}
+
+# Rename the user account
+try {
+    Rename-LocalUser -Name $currentUsername -NewName "lol"
+    Write-Host "Username successfully changed from $currentUsername to 'lol'." -ForegroundColor Green
+} catch {
+    Write-Host "Failed to rename the user: $_" -ForegroundColor Red
+    exit
+}
+
+# Reboot the machine
+Write-Host "Rebooting the machine..." -ForegroundColor Cyan
+Restart-Computer -Force
